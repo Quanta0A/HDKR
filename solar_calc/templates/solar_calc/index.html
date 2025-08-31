@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solar Radiation Calculator | HDKR Model</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4bb543;
+      --warning: #ff9500;
+      --danger: #ff3e3e;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--primary);
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary);
+    }
+
+    .btn-secondary {
+      background-color: var(--warning);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e68a00;
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #e03838;
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #3da336;
+    }
+
+    .results-section {
+      margin-top: 3rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      color: var(--secondary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+      background: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+    }
+
+    th,
+    td {
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid #e9ecef;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    tr:hover {
+      background-color: #f1f3f5;
+    }
+
+    .plot-container {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--box-shadow);
+    }
+
+    .file-upload {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .file-upload input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #e9ecef;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .file-upload-label:hover {
+      background-color: #dee2e6;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-sun"></i> HDKR Solar Radiation Calculator</h1>
+      <p class="subtitle">Calculate tilted surface solar radiation using the HDKR model</p>
+    </header>
+
+    <div class="card">
+      <form method="post" enctype="multipart/form-data" id="solarForm" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="id_latitude"><i class="fas fa-map-marker-alt"></i> Latitude (°)</label>
+            {{ form.latitude }}
+            <span class="note">Enter latitude in degrees (-90 to 90)</span>
+          </div>
+
+          <div class="form-group" id="monthlyInputFields" style="display: none;">
+            <label><i class="fas fa-calendar-alt"></i> Monthly GHI and Sunshine (MJ/m² or W/m²)</label>
+            <div class="form-grid">
+              {% for month in months %}
+              <div>
+                <label for="month_{{ month }}_ghi">{{ month|title }} - GHI</label>
+                <input type="number" step="any" name="month_{{ month }}_ghi" id="month_{{ month }}_ghi">
+              </div>
+              <div>
+                <label for="month_{{ month }}_sunshine">{{ month|title }} - Sunshine Hours</label>
+                <input type="number" step="any" name="month_{{ month }}_sunshine" id="month_{{ month }}_sunshine">
+              </div>
+              {% endfor %}
+            </div>
+            <span class="note">Enter average monthly GHI and Sunshine for each month</span>
+          </div>
+
+
+          <div class="form-group" id="yearInputModeField">
+            <label for="id_year_input_mode"><i class="fas fa-toggle-on"></i> Year Input Mode</label>
+            <select name="year_input_mode" id="id_year_input_mode">
+              <option value="monthly">Monthly GHI + Sunshine</option>
+              <option value="daily">Daily GHI values (365)</option>
+            </select>
+            <span class="note">Choose if your yearly data is monthly averages or full daily values</span>
+          </div>
+
+
+          <div class="form-group">
+            <label for="id_tilt"><i class="fas fa-angle-double-up"></i> Tilt Angle (°)</label>
+            {{ form.tilt }}
+            <span class="note">Angle between surface and horizontal (0-90)</span>
+          </div>
+
+          <div class="form-group">
+            <label for="id_year"><i class="fas fa-calendar-alt"></i> Year</label>
+            {{ form.year }}
+          </div>
+
+          <div class="form-group">
+            <label for="id_mode"><i class="fas fa-calculator"></i> Calculation Mode</label>
+            {{ form.mode }}
+            <span class="note">Choose calculation mode</span>
+          </div>
+
+          <div class="form-group" id="dateField">
+            <label for="id_date"><i class="fas fa-calendar-day"></i> Date</label>
+            {{ form.date }}
+          </div>
+
+          <div class="form-group" id="monthField">
+            <label for="id_month"><i class="fas fa-calendar-week"></i> Month</label>
+            {{ form.month }}
+          </div>
+
+          <div class="form-group">
+            <label for="id_ghi_unit"><i class="fas fa-bolt"></i> GHI Input Unit</label>
+            {{ form.ghi_unit }}
+          </div>
+
+          <div class="form-group" id="ghiTextAreaWrapper">
+            <label for="id_ghi"><i class="fas fa-solar-panel"></i> GHI Values</label>
+            {{ form.ghi }} <!-- Django will render the <textarea id="id_ghi"> -->
+            <span class="note" id="ghiNote">
+              Single value or comma‑separated list
+            </span>
+          </div>
+
+          <div class="form-group" id="sunshineField">
+            <label for="id_sunshine_hours"><i class="fas fa-clock"></i> Sunshine Hours</label>
+            <textarea name="sunshine_hours" id="id_sunshine_hours" rows="3"
+              placeholder="For one day: 8  |  For a month: 7.5,8,8, …"></textarea>
+            <span class="note">Single value for one‑day mode, or comma‑list for full‑month in W/m²</span>
+          </div>
+
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" name="tilt_analysis" id="tilt_analysis">
+              <label for="tilt_analysis">Include Tilt Angle Analysis <i class="fas fa-chart-line"></i></label>
+            </div>
+            <span class="note">Generate plots for tilt angles from 0° to 90°</span>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" name="yearly_optimal_tilt" id="yearly_optimal_tilt">
+              <label for="yearly_optimal_tilt"><i class="fas fa-bullseye"></i> Optimal Tilt (Monthly + Yearly)</label>
+            </div>
+            <span class="note">Calculate best tilt angle for each month and the whole year based on max
+              radiation.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="file-upload">
+              <div class="file-upload-label">
+                <i class="fas fa-file-upload"></i> Upload CSV File (Optional)
+              </div>
+              <input type="file" name="csv_file" id="csv_file">
+            </label>
+            <span class="note">CSV should contain GHI and optional Sunshine columns</span>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-calculator"></i> Calculate
+            </button>
+            <button type="reset" class="btn btn-secondary" onclick="clearForm()">
+              <i class="fas fa-broom"></i> Clear
+            </button>
+            <button type="button" class="btn btn-danger" onclick="window.location.href=window.location.href">
+              <i class="fas fa-sync-alt"></i> Reset
+            </button>
+          </div>
+      </form>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger"> style="background-color: #fff3f3; border-left: 4px solid var(--danger);">
+      <h3>Input Errors:</h3>
+      <ul>
+        {% for field, errors in form.errors.items %}
+        <li>{{ field }}: {{ errors|join:", " }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if result %}
+    <div class="results-section">
+      <h2 class="section-title">
+        <i class="fas fa-chart-bar"></i> Calculation Results
+      </h2>
+
+      <div class="card">
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Declination (°)</th>
+                <th>Io (MJ/m²)</th>
+                <th>Kt</th>
+                <th>Hd/H</th>
+                <th>Hd</th>
+                <th>Hb</th>
+                <th>Rb</th>
+                <th><b>It (MJ/m²)</b></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in result %}
+              <tr>
+                <td>{{ r.day }}</td>
+                <td>{{ r.declination|floatformat:2 }}</td>
+                <td>{{ r.Io|floatformat:2 }}</td>
+                <td>{{ r.Kt|floatformat:3 }}</td>
+                <td>{{ r.Hd_H|floatformat:2 }}</td>
+                <td>{{ r.Hd|floatformat:2 }}</td>
+                <td>{{ r.Hb|floatformat:2 }}</td>
+                <td>{{ r.rb|floatformat:2 }}</td>
+                <td><b>{{ r.It|floatformat:2 }}</b></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          
+         {{ result|json_script:"resultsData" }} 
+         
+        <form id="csvDownloadForm" method="post" action="{% url 'download_csv' %}">
+          {% csrf_token %}
+          <input type="hidden" name="result_json" id="resultJsonField">
+          <button type="button" class="btn btn-success" onclick="submitCsvDownload()" style="margin-top: 1.5rem;">
+            <i class="fas fa-file-download"></i> Download CSV
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if messages %}
+  <div class="card" style="background-color: #e6ffed; border-left: 6px solid var(--success); margin-bottom: 1rem;">
+    {% for message in messages %}
+      <p style="margin: 0; padding: 1rem; font-weight: bold; color: #2f6627;">✅ {{ message }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+    {% if graph %}
+    <div class="results-section">
+      <h2 class="section-title">
+        <i class="fas fa-chart-line"></i> Radiation Components
+      </h2>
+      <div class="plot-container">
+        <div id="tiltedPlot">{{ graph|safe }}</div>
+        <button class="btn btn-primary" onclick="downloadPlot('tiltedPlot', 'tilted_radiation')"
+          style="margin-top: 1rem;">
+          <i class="fas fa-download"></i> Download Plot
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if bar_graph %}
+    <div class="results-section">
+      <h2 class="section-title">
+        <i class="fas fa-chart-pie"></i> Radiation Distribution
+      </h2>
+      <div class="plot-container">
+        <div id="barPlot">{{ bar_graph|safe }}</div>
+        <button class="btn btn-primary" onclick="downloadPlot('barPlot', 'radiation_components')"
+          style="margin-top: 1rem;">
+          <i class="fas fa-download"></i> Download Plot
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if tilt_graph %}
+    <div class="results-section">
+      <h2 class="section-title">
+        <i class="fas fa-angle-double-right"></i> Tilt Angle Analysis
+      </h2>
+      <div class="plot-container">
+        <div id="tiltPlot">{{ tilt_graph|safe }}</div>
+        <button class="btn btn-primary" onclick="downloadPlot('tiltPlot', 'tilt_angle_comparison')"
+          style="margin-top: 1rem;">
+          <i class="fas fa-download"></i> Download Plot
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if optimal_tilt_graph %}
+    <div class="results-section">
+      <h2 class="section-title">
+        <i class="fas fa-bullseye"></i> Optimal Tilt Analysis
+      </h2>
+      <div class="plot-container">
+        <div id="optimalTiltPlot">{{ optimal_tilt_graph|safe }}</div>
+        <button class="btn btn-primary" onclick="downloadPlot('optimalTiltPlot', 'optimal_tilt')"
+          style="margin-top: 1rem;">
+          <i class="fas fa-download"></i> Download Plot
+        </button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function toggleModeFields() {
+      const mode = document.getElementById("id_mode").value;
+      const ghiUnit = document.getElementById("id_ghi_unit").value;
+      const yearInputMode = document.getElementById("id_year_input_mode")?.value || '';
+
+      const dateField = document.getElementById("dateField");
+      const monthField = document.getElementById("monthField");
+      const sunField = document.getElementById("sunshineField");
+      const ghiNote = document.getElementById("ghiNote");
+      const ghiField = document.getElementById("id_ghi").closest('.form-group');
+      const yearInputModeField = document.getElementById("yearInputModeField");
+      const monthlyInputFields = document.getElementById("monthlyInputFields");
+      const ghiWrapper = document.getElementById("ghiTextAreaWrapper");
+      // Show/hide base fields
+      dateField.style.display = mode === "single_day" ? "block" : "none";
+      monthField.style.display = mode === "full_month" ? "block" : "none";
+
+      /* Show sunshine box whenever:
+       – GHI unit is W/m²
+       – AND the current data entry really needs sunshine hours
+         (single‑day, full‑month, or 12‑month‑daily).               */
+      const needsSunshine =
+        ghiUnit === "W" && (
+          mode === "single_day" ||
+          mode === "full_month" ||
+          mode === "365_days" ||
+          (mode === "12_month" && yearInputMode === "daily")
+        );
+        sunField.style.display = needsSunshine ? "block" : "none";   // ← NEW
+
+
+      const showGhiTextarea =
+        mode === "single_day" ||
+        mode === "full_month" ||
+        mode === "365_days" ||
+        (mode === "12_month" && yearInputMode === "daily");
+
+      ghiWrapper.style.display = showGhiTextarea ? "block" : "none";
+
+      // GHI note
+      if (mode === "12_month" && yearInputMode === "daily") {
+        ghiNote.textContent = "Enter 12 comma‑separated monthly GHI values";
+      }
+      else if (mode === "365_days") {
+        ghiNote.textContent = "Enter 365 daily GHI values; if unit is W/m², also enter 365 Sunshine hours";
+      }
+      else {
+        ghiNote.textContent = "Single value or comma‑separated list";
+      }
+
+
+      // Toggle year input mode field
+      yearInputModeField.style.display = (mode === "12_month") ? "block" : "none";
+
+      // Toggle monthly input fields only if yearInputMode == monthly
+      if (monthlyInputFields) {
+        monthlyInputFields.style.display = (mode === "12_month" && yearInputMode === "monthly") ? "block" : "none";
+      }
+    }
+
+    window.onload = function () {
+      toggleModeFields();
+      document.getElementById("id_mode").addEventListener("change", toggleModeFields);
+      document.getElementById("id_ghi_unit").addEventListener("change", toggleModeFields);
+
+      // Watch year input mode dropdown
+      const yearModeInput = document.getElementById("id_year_input_mode");
+      if (yearModeInput) {
+        yearModeInput.addEventListener("change", toggleModeFields);
+      }
+    };
+
+    function clearForm() {
+      const form = document.querySelector('form');
+      form.reset();
+      form.querySelectorAll('input, textarea').forEach(el => el.value = '');
+      form.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+      toggleModeFields();
+    }
+
+    function downloadPlot(divId, filename) {
+      const plotDiv = document.getElementById(divId).querySelector('.plotly-graph-div');
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        filename: filename,
+        width: 1000,
+        height: 600
+      });
+    }
+
+    function validateForm() {
+      const mode = document.getElementById("id_mode").value;
+      const yearInputMode = document.getElementById("id_year_input_mode")?.value || '';
+      const ghi = document.getElementById("id_ghi").value.trim();
+
+      if (mode === "12_month" && yearInputMode === "daily") {
+        const ghiValues = ghi.split(',').map(v => v.trim()).filter(Boolean);
+        if (ghiValues.length !== 12) {
+          alert("Please enter exactly 12 GHI values (one per month) or switch input mode to ‘Monthly GHI + Sunshine’.");
+          return false;
+        }
+      }
+      return true;
+    }
+
+    document.getElementById('solarForm').addEventListener('submit', function (e) {
+      console.log("Form submit triggered");
+      if (!validateForm()) {
+        e.preventDefault();
+         console.log("Blocked by validateForm()");
+      }
+    });
+  </script>
+
+      <script>
+function submitCsvDownload(){
+    const hidden = document.getElementById("resultJsonField");
+    const data   = JSON.parse(
+        document.getElementById("resultsData").textContent
+    );
+    hidden.value = JSON.stringify(data);
+    document.getElementById("csvDownloadForm").submit();
+}
+</script>
+
+  <!-- ========= Custom Plotly click callbacks ========== -->
+<script>
+/* helper: show a tiny floating toast */
+function showToast(msg) {
+  const el = document.createElement("div");
+  el.textContent = msg;
+  Object.assign(el.style, {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    background: "#333",
+    color: "#fff",
+    padding: "8px 14px",
+    borderRadius: "6px",
+    zIndex: 10000,
+    opacity: 0.9,
+    fontSize: "0.85rem"
+  });
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);   // auto‑dismiss
+}
+
+/* attach click listener to ONE graph‑div (helper) */
+function attachClickListener(containerId) {
+  const container = document.querySelector(`#${containerId} .plotly-graph-div`);
+  if (!container) return;                        // graph may be absent
+  container.on('plotly_click', (data) => {
+    const pt = data.points[0];                   // first clicked point
+    const msg = `Clicked → x=${pt.x}, y=${pt.y}`;
+    console.log(msg);
+    showToast(msg);
+  });
+}
+
+/* run after DOM & Plotly are ready */
+window.addEventListener('DOMContentLoaded', () => {
+  // IDs match the <div id="..."> in your template
+  attachClickListener('tiltedPlot');      // It time‑series
+  attachClickListener('barPlot');         // Hd/Hb/It bars
+  attachClickListener('tiltPlot');        // Tilt‑sweep
+  attachClickListener('optimalTiltPlot'); // Optimal‑tilt summary
+});
+</script>
+
+</body>
+
+</html>
